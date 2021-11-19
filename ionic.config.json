@@ -1,0 +1,7 @@
+{
+  "name": "kalkulacka",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "vue"
+}
