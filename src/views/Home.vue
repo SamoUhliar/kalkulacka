@@ -3,7 +3,7 @@
     <div class="inner">
       <div class="output outer">
         <div class="inner number">
-          <h1 v-bind:style="{fontSize: fontSize + 'vw' }">{{input}}</h1>
+          <h1 v-bind:style="{ WordSpacing: + spacing+'em !important' }">{{input}}</h1>
         </div>
       </div>
       <div class="outer">
@@ -13,25 +13,25 @@
          <div class="container ">
           <ion-button class="dobbleButton" @click="clean()">AC</ion-button>
           <ion-button @click="deleteFunction()">DEL</ion-button>
-          <ion-button @click="addOperation('+')">+</ion-button>
+          <ion-button @click="addOperation(' + ')">+</ion-button>
         </div>
         <div class="container">
           <ion-button @click="addNumber('7')">7</ion-button>
           <ion-button @click="addNumber('8')">8</ion-button>
           <ion-button @click="addNumber('9')">9</ion-button>
-          <ion-button @click="addOperation('-')">-</ion-button>
+          <ion-button @click="addOperation(' - ')">-</ion-button>
         </div>
         <div class="container ">
           <ion-button @click="addNumber('4')">4</ion-button>
           <ion-button @click="addNumber('5')">5</ion-button>
           <ion-button @click="addNumber('6')">6</ion-button>
-          <ion-button @click="addOperation('*')">*</ion-button>
+          <ion-button @click="addOperation(' * ')">*</ion-button>
         </div>
         <div class="container ">
           <ion-button @click="addNumber('1')">1</ion-button>
           <ion-button @click="addNumber('2')">2</ion-button>
           <ion-button @click="addNumber('3')">3</ion-button>
-          <ion-button @click="addOperation('/')">/</ion-button>
+          <ion-button @click="addOperation(' / ')">/</ion-button>
         </div>
         <div class="container ">
           <ion-button @click="addNumber('0')">0</ion-button>
@@ -57,9 +57,8 @@ export default defineComponent({
     return{
       input:'0',
       afterEaquals:false,
-      fontSize: 20,
-      minFontSize: 20,
-      maxFontSize: 20
+      spacing: 0,
+      error:false
     }
   },
   methods:{
@@ -70,27 +69,50 @@ export default defineComponent({
          this.input=''
          this.afterEaquals=false
       }
+      this.error = false
       this.input+=char
-      this.setFontSize()
+      this.chcekLength()
     },
     addOperation(char){
-      if(this.afterEaquals){
-         this.afterEaquals=false
+      if(!this.error){
+        if(this.afterEaquals){
+          this.afterEaquals=false
+        }
+        this.input+=char
+        this.chcekLength()
       }
-      this.input+=char
-      this.setFontSize()
+     
     },
     clean(){
       this.input='0'
-      this.setFontSize()
+      this.error = false
     },
     eaquals(){
-      this.input=eval(this.input)
+      let good = true
+      try {
+        eval(this.input); 
+      } catch (e) {
+        if (e instanceof SyntaxError) {
+          good = false
+          this.input="syntax error"
+          this.error = true
+          this.spacing = 0
+        }
+      } finally {
+        if(good){
+          this.input = eval(this.input)
+          this.chcekLength()
+        }
+      }
       this.afterEaquals = true
-      this.setFontSize()
     },
     deleteFunction(){
-     
+      if(this.error){
+        this.input='0'
+        this.afterEaquals = false
+        this.error=false
+      }
+
       if(this.afterEaquals == true){
         this.afterEaquals = false
       }else{
@@ -101,11 +123,15 @@ export default defineComponent({
           }
         }
       }
-      this.setFontSize()
+      this.chcekLength()
     },
-    setFontSize(){
-      this.fontSize = this.maxFontSize - this.input.length/4 ;
-      console.log(this.maxFontSize - this.input.length/4);
+    chcekLength(){
+      this.spacing = -0.3
+      if(this.input.length>55){
+        this.input="To long"
+        this.afterEaquals = true
+        this.spacing = 0
+      }
     }
   }
 });
@@ -146,11 +172,17 @@ ion-button{
 }
 
 .output{
-  height: 30vw;
+  height: fit-content;
+  min-height: 30vw;
+  max-height: 60vw;
 }
 
 .number{
   width: 90%;
+  word-break: break-all;
+}
+.number h1{
+  font-size: 11.25vw !important;
 }
 .dobbleButton{
   width: 44.5vw !important;
