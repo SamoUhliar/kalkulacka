@@ -45,142 +45,143 @@
 
 <script >
 import { IonPage, IonButton } from '@ionic/vue';
-import { defineComponent } from 'vue';
-export default defineComponent({
-  name: 'Home',
+export default {
   components: {
     IonPage,
     IonButton,
   },
-  data(){
+  data() {
     return{
       input:'0',
       afterCalculate:false,
       error:false,
-      numKey:[{code:'Numpad0',key:'0'},{code:'Numpad1',key:'1'},{code:'Numpad2',key:'2'},{code:'Numpad3',key:'3'},{code:'Numpad4',key:'4'},{code:'Numpad5',key:'5'},{code:'Numpad6',key:'6'},{code:'Numpad7',key:'7'},{code:'Numpad8',key:'8'},{code:'Numpad9',key:'9'},{code:'NumpadDecimal',key:'.'},],
-      operationKey:[{code:'NumpadAdd',key:'+'},{code:'NumpadSubtract',key:'-'},{code:'NumpadMultiply',key:'*'},{code:'NumpadDivide',key:'/'},]
+      numKey:[
+        {code:'Numpad0',key:'0'},
+        {code:'Numpad1',key:'1'},
+        {code:'Numpad2',key:'2'},
+        {code:'Numpad3',key:'3'},
+        {code:'Numpad4',key:'4'},
+        {code:'Numpad5',key:'5'},
+        {code:'Numpad6',key:'6'},
+        {code:'Numpad7',key:'7'},
+        {code:'Numpad8',key:'8'},
+        {code:'Numpad9',key:'9'},
+        {code:'NumpadDecimal',key:'.'}
+      ],
+      operationKey:[
+        {code:'NumpadAdd',key:'+'},
+        {code:'NumpadSubtract',key:'-'},
+        {code:'NumpadMultiply',key:'*'},
+        {code:'NumpadDivide',key:'/'}
+      ]
     }
   },
   mounted() {
-    window.addEventListener('keydown', this.keyPress);
+    window.addEventListener('keydown', this._keyPress)
   },
   unmounted() {
-    window.removeEventListener('keydown', this.keyPress);
+    window.removeEventListener('keydown', this._keyPress)
   },
   methods:{
-    keyPress(e) {
-      const cmd = e.code;
-      console.log(cmd)
-      this.numKey.forEach((value, index) => {
-        if( cmd == value.code )
-        {
-          this.addNumber(value.key)
-        }
-      });
-      this.operationKey.forEach((value, index) => {
-        if( cmd == value.code )
-        {
-          this.addOperation(value.key)
-        }
-      });
-      if( cmd == 'Enter')
-      {
-        this.calculate()
-      }
-      if( cmd == 'Backspace')
-      {
-        this.deleteChar()
-      }
-      if( cmd == 'Delete')
-      {
-        this.clear()
-      }
-    },
-    addNumber(char){
-      if( this.input == '0' )
-      {
+    addNumber(char) {
+      if (this.input == '0') {
         this.input = ''
-      }else if( this.afterCalculate )
-      {
+      } else if (this.afterCalculate) {
          this.input = ''
          this.afterCalculate = false
       }
 
       this.error = false
       this.input += char
-      this.chcekLength()
+      this._checkLength()
     },
-    addOperation(char){
-      if( !this.error )
-      {
-        if( this.afterCalculate )
-        {
+    addOperation(char) {
+      if (!this.error) {
+        if (this.afterCalculate) {
           this.afterCalculate = false
         }
+        
         this.input += char
-        this.chcekLength()
+        this._checkLength()
       }
     },
-    clear(){
+    clear() {
       this.input = '0'
       this.error = false
     },
-    calculate(){
+    calculate() {
       let fine = true
+
       try {
         eval(this.input); 
       } catch (error) {
-        if (error instanceof SyntaxError)  
-        {
+        if (error instanceof SyntaxError) {
           fine = false
           this.input="syntax error"
           this.error = true
         }
-      }finally{
-        if(fine)
-        {
+      } finally {
+        if (fine) {
           this.input = eval(this.input)
-          this.chcekLength()
+          this._checkLength()
         }
       }
+
       this.afterCalculate = true
     },
-    deleteChar(){
-      if( this.error )
-      {
+    deleteChar() {
+      if (this.error) {
         this.input = '0'
         this.afterCalculate = false
         this.error = false
       }
 
-      if( this.afterCalculate == true )
-      {
+      if (this.afterCalculate) {
         this.afterCalculate = false
-      }
-      else
-      {
-        if( this.input != '0' )
-        {
-          this.input = this.input.slice(0, -1)
-          if( this.input == '' )
-          {
+      } else {
+        if (this.input != '0') {
+          this.input = this.input.pop()
+          if (this.input == '') {
             this.input = '0'
           }
         }
       }
-      this.chcekLength()
+
+      this._checkLength()
     },
-    chcekLength()
-    {
-      if( this.input.length > 47 )
-      {
+    _checkLength() {
+      if (this.input.length > 47) {
         this.input = "To long"
         this.afterCalculate = true
         this.error = true
       }
+    },
+    _keyPress(e) {
+      const key = e.code;
+
+      this.numKey.forEach((value) => {
+        if (key == value.code) {
+          this.addNumber(value.key)
+        }
+      })
+      this.operationKey.forEach((value) => {
+        if (key == value.code) {
+          this.addOperation(value.key)
+        }
+      })
+
+      if (key == 'Enter') {
+        this.calculate()
+      }
+      if (key == 'Backspace') {
+        this.deleteChar()
+      }
+      if (key == 'Delete') {
+        this.clear()
+      }
     }
   }
-});
+}
 </script>
 
 <style scoped>
@@ -198,7 +199,7 @@ export default defineComponent({
   width:100%
 }
 
-ion-button{
+ion-button {
   width: 22vw;
   height: 22vw;
   font-size: 5vW;
@@ -211,27 +212,27 @@ ion-button{
   margin: 0px;
 }
 
-.line{
+.line {
   height: 1px;
   width: 98%;
   background-color: var(--ion-color-medium	);
 }
 
-.output{
+.output {
   height: 40vw;
 }
 
-.number{
+.number {
   width: 90%;
   word-break: break-all;
 }
-.number h1{
+.number h1 {
   font-size: 9.25vw !important;
 }
-.dobbleButton{
+.dobbleButton {
   width: 44.5vw !important;
 }
-.bottom{
+.bottom {
 
   width: 100%;
 }
